@@ -69,14 +69,28 @@ app.post('/upload', upload.single('pdf'), async (req, res) => {
     // Appeler Ollama pour résumé structuré, points clés, suggestions d'actions
     let summary = '';
     try {
+      const prompt = pdfData.text; // ou la variable contenant le prompt complet si tu en utilises un
+      console.log('Prompt envoyé à Ollama :', prompt);
+      console.log('Envoi à Ollama...');
       summary = await summarizeWithOllama(pdfData.text);
+      console.log('Résumé reçu d\'Ollama :', summary);
     } catch (err) {
+      console.error('Erreur lors de la génération du résumé via Ollama:', err);
       summary = 'Erreur lors de la génération du résumé via Ollama.';
     }
     
+    const titreMatch = summary.match(/Titre ?: ?(.+)/i);
+    const titre = titreMatch ? titreMatch[1].trim() : `Résumé : ${req.file.originalname}`;
+    
     // Enregistrer la réponse dans MongoDB
     try {
-      await ApiResponse.create({ response: summary });
+      await ApiResponse.create({
+        response: summary,
+        filename: req.file.originalname,
+        pages: pdfData.numpages,
+        info: pdfData.info,
+        name: titre
+      });
       console.log('Réponse enregistrée en base');
     } catch (err) {
       console.error('Erreur lors de l\'enregistrement en base:', err);
@@ -140,6 +154,16 @@ app.get('/history', async (req, res) => {
     res.json({ success: true, history });
   } catch (err) {
     res.status(500).json({ success: false, message: 'Erreur lors de la récupération de l\'historique' });
+  }
+});
+
+// Suppression d'une conversation
+app.delete('/history/:id', async (req, res) => {
+  try {
+    await ApiResponse.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Erreur lors de la suppression.' });
   }
 });
 
