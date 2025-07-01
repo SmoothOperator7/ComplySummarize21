@@ -9,6 +9,7 @@ function App() {
   const [error, setError] = useState(null);
   const [history, setHistory] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
+  const [loadingDots, setLoadingDots] = useState('');
 
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
@@ -91,6 +92,17 @@ function App() {
     fetchHistory();
   }, []);
 
+  useEffect(() => {
+    if (!isUploading) {
+      setLoadingDots('');
+      return;
+    }
+    const interval = setInterval(() => {
+      setLoadingDots(prev => (prev.length < 3 ? prev + '.' : ''));
+    }, 500);
+    return () => clearInterval(interval);
+  }, [isUploading]);
+
   return (
     <div className="app-container">
       <div className="sidebar">
@@ -124,16 +136,38 @@ function App() {
         {!selectedConversation && (
           <>
             <div className="upload-form">
+              <label htmlFor="pdf-input" className="pdf-upload-label">
+                <span className="pdf-upload-icon" aria-hidden="true">
+                  {/* Icône PDF SVG */}
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="3" y="3" width="18" height="18" rx="4" fill="#4f8cff"/><path d="M8 8h8v2H8V8zm0 4h5v2H8v-2z" fill="#fff"/></svg>
+                </span>
+                <span className="pdf-upload-text">{selectedFile ? "Changer de fichier PDF" : "Choisir un fichier PDF"}</span>
+              </label>
               <input
                 id="pdf-input"
                 type="file"
                 accept=".pdf"
                 onChange={handleFileSelect}
-                className="file-input"
+                className="custom-file-input"
+                style={{ display: 'none' }}
               />
-              {selectedFile && (
-                <div className="success">
-                  ✅ Fichier sélectionné: {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+              {selectedFile && !isUploading && (
+                <div className="pdf-pill">
+                  <span className="pdf-pill-name">
+                    {selectedFile.name} ({(selectedFile.size / 1024 / 1024).toFixed(2)} MB)
+                  </span>
+                  <button
+                    onClick={() => {
+                      setSelectedFile(null);
+                      const fileInput = document.getElementById('pdf-input');
+                      if (fileInput) fileInput.value = '';
+                    }}
+                    className="pdf-pill-remove"
+                    aria-label="Supprimer le fichier"
+                    type="button"
+                  >
+                    ✕
+                  </button>
                 </div>
               )}
               <button
@@ -143,6 +177,17 @@ function App() {
               >
                 {isUploading ? 'Extraction en cours...' : 'Extraire le texte'}
               </button>
+              {isUploading && (
+                <>
+                  <div className="progress-bar-container">
+                    <div className="progress-bar"></div>
+                  </div>
+                  <div style={{textAlign: 'center', fontSize: '0.95rem', color: '#555'}}>
+                    Génération de la réponse par l'IA
+                    <span className="loading-dots">{loadingDots}</span>
+                  </div>
+                </>
+              )}
             </div>
             {error && (
               <div className="error">
@@ -185,7 +230,7 @@ function App() {
               <button
                 onClick={resetResults}
                 className="upload-btn"
-                style={{ marginTop: '1rem', background: '#6c757d' }}
+                style={{ marginTop: '1rem', background: '#4f8cff' }}
               >
                 Extraire un autre PDF
               </button>

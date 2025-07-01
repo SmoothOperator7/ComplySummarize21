@@ -70,8 +70,8 @@ body {
 
 .upload-form {
   display: flex;
+  gap: 20px;
   flex-direction: column;
-  gap: 1rem;
   margin-bottom: 2rem;
   align-items: center;
 }
@@ -188,7 +188,7 @@ pre, .ffff {
   color: #2e7d32;
   padding: 0.8em;
   border-radius: 5px;
-  margin-top: 1em;
+
 }
 
 
@@ -235,5 +235,129 @@ input[type=file]::file-selector-button:hover {
   input[type=file]::file-selector-button {
     background: #35356e;
     color: #fff;
+  }
+}
+
+.progress-bar-container {
+  width: 100%;
+  max-width: 350px;
+  margin: 1em auto 0 auto;
+  background: #e0e7ef;
+  border-radius: 4px;
+  height: 8px;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  border-radius: 4px;
+  background: linear-gradient(
+    90deg,
+    #4f8cff 0%,
+    #2563eb 40%,
+    #4f8cff 60%,
+    #2563eb 100%
+  );
+  background-size: 200% 100%;
+  animation: progressBarMove 1.2s linear infinite;
+  box-shadow: 0 1px 4px 0 rgba(79,140,255,0.10);
+}
+
+@keyframes progressBarMove {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: 0% 0;
+  }
+}
+
+.pdf-upload-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #4f8cff;
+  color: #fff;
+  border-radius: 999px;
+  padding: 0.9em 2.2em;
+  font-size: 1.08rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.18s, box-shadow 0.18s;
+  box-shadow: 0 2px 8px 0 rgba(79,140,255,0.08);
+  border: none;
+  width: fit-content;
+  gap: 0.7em;
+}
+.pdf-upload-label:hover, .pdf-upload-label:focus {
+  background: #2563eb;
+}
+.pdf-upload-icon {
+  margin-right: 0.7em;
+  display: flex;
+  align-items: center;
+}
+.pdf-upload-text {
+  vertical-align: middle;
+  font-weight: 500;
+}
+.pdf-pill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #e6ffe6;
+  color: #217a3a;
+  border-radius: 999px;
+  padding: 0.5em 1.2em;
+  font-size: 1rem;
+  font-weight: 500;
+  box-shadow: 0 1px 4px 0 rgba(33,122,58,0.07);
+  gap: 0.7em;
+  max-width: 90vw;
+  overflow-x: auto;
+}
+.pdf-pill-name {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 60vw;
+}
+.pdf-pill-remove {
+  background: transparent;
+  border: none;
+  color: #c33;
+  font-size: 1.2em;
+  margin-left: 0.5em;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background 0.15s, color 0.15s;
+  width: 1.8em;
+  height: 1.8em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pdf-pill-remove:hover, .pdf-pill-remove:focus {
+  background: #ffeaea;
+  color: #a00;
+}
+@media (max-width: 600px) {
+  .upload-form {
+    padding: 0 0.5em;
+  }
+  .pdf-upload-label {
+    width: 100%;
+    font-size: 1rem;
+    padding: 0.9em 0.5em;
+  }
+  .pdf-pill {
+    font-size: 0.97rem;
+    padding: 0.5em 0.7em;
+    max-width: 98vw;
+  }
+  .pdf-pill-name {
+    max-width: 40vw;
   }
 }

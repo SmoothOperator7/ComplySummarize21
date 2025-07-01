@@ -4,8 +4,9 @@ const pdfParse = require('pdf-parse');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
-const { summarizeWithHuggingFace } = require('./apihuggingface');
-
+const { summarizeWithOllama } = require('./apiollama');
+const mongoose = require('mongoose');
+const ApiResponse = require('./models/ApiResponse');
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -65,12 +66,20 @@ app.post('/upload', upload.single('pdf'), async (req, res) => {
     // Supprimer le fichier temporaire après extraction
     fs.unlinkSync(filePath);
     
-    // Appeler Hugging Face pour résumé structuré, points clés, suggestions d'actions
+    // Appeler Ollama pour résumé structuré, points clés, suggestions d'actions
     let summary = '';
     try {
-      summary = await summarizeWithHuggingFace(pdfData.text);
+      summary = await summarizeWithOllama(pdfData.text);
     } catch (err) {
-      summary = 'Erreur lors de la génération du résumé via Hugging Face.';
+      summary = 'Erreur lors de la génération du résumé via Ollama.';
+    }
+    
+    // Enregistrer la réponse dans MongoDB
+    try {
+      await ApiResponse.create({ response: summary });
+      console.log('Réponse enregistrée en base');
+    } catch (err) {
+      console.error('Erreur lors de l\'enregistrement en base:', err);
     }
     
     // Retourner la réponse structurée au frontend
@@ -124,6 +133,22 @@ app.use((error, req, res, next) => {
     message: error.message
   });
 });
+
+app.get('/history', async (req, res) => {
+  try {
+    const history = await ApiResponse.find().sort({ createdAt: -1 }).limit(50);
+    res.json({ success: true, history });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Erreur lors de la récupération de l\'historique' });
+  }
+});
+
+mongoose.connect('mongodb://localhost:27017/apocalypse', {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log('✅ Connecté à MongoDB'))
+.catch(err => console.error('Erreur MongoDB:', err));
 
 app.listen(PORT, () => {
   console.log(`🚀 Serveur backend démarré sur le port ${PORT}`);
