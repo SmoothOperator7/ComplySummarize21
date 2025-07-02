@@ -1,5 +1,7 @@
 const axios = require('axios');
 
+const OLLAMA_API_URL = process.env.OLLAMA_API_URL || 'http://ollama:11434';
+
 /**
  * Envoie un prompt à Ollama (modèle local) et récupère la réponse.
  * @param {string} prompt - Le prompt à envoyer au modèle.
@@ -7,7 +9,7 @@ const axios = require('axios');
  */
 async function summarizeWithOllama(prompt) {
   try {
-    const response = await axios.post('http://localhost:11434/api/generate', {
+    const response = await axios.post(`${OLLAMA_API_URL}/api/generate`, {
       model: 'openchat',
       prompt: prompt,
       stream: false

@@ -1,98 +1,78 @@
-# Project Apocalypse – PDF Résumé IA en Local
+# Project Apocalypse
 
 ## Prérequis
-- [Node.js & npm](https://nodejs.org/)
-- [MongoDB Community Server](https://www.mongodb.com/try/download/community) (pour la base de données)
-- [MongoDB Compass](https://www.mongodb.com/try/download/compass) (interface graphique pour voir les données)
-- [Ollama](https://ollama.com/) (pour faire tourner le modèle IA en local)
-  - **Important :** Ollama doit être lancé avec la commande `ollama serve` à chaque démarrage de votre machine ou session.
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installé (Windows/Mac/Linux)
+- Accès à un terminal/PowerShell
 
-## Installation
+## Installation et lancement rapide
 
-1. **Clonez le projet**
-   ```bash
+1. **Clone le projet**
+   ```sh
    git clone <url-du-repo>
    cd project-apocalypse
    ```
 
-2. **Installez les dépendances backend**
-   ```bash
-   cd backend
-   npm install
+2. **Vérifie que le fichier `docker-compose.yml` existe à la racine**
+   (il est déjà fourni normalement)
+
+3. **Lance tous les services (backend, frontend, MongoDB, Ollama)**
+   ```sh
+   docker-compose up --build
    ```
-
-3. **Installez les dépendances frontend**
-   ```bash
-   cd ../frontend
-   npm install
-   ```
-
-## Lancer MongoDB
-- Si vous avez installé MongoDB comme service, il démarre automatiquement.
-- Sinon, lancez-le dans un terminal :
-  ```bash
-  mongod
-  ```
-
-## Lancer Ollama (modèle IA local)
-1. **Démarrez le serveur Ollama** (à faire à chaque démarrage de votre machine) :
-   ```bash
-   ollama serve
-   ```
-   Laissez ce terminal ouvert pendant toute l'utilisation de l'application.
-
-2. **Téléchargez le modèle IA souhaité** (exemples) :
-   - Pour OpenChat (type ChatGPT) :
-     ```bash
-     ollama pull openchat
+   - La première fois, le téléchargement des images et des modèles peut être long.
+   - Si tu veux arrêter :
+     ```sh
+     docker-compose down
      ```
 
-3. **Changer de modèle utilisé** :
-   - Dans le fichier `backend/apiollama.js`, modifiez la ligne `model: 'mistral'` par le nom du modèle souhaité (ex : `model: 'openchat'`).
-   - Redémarrez le backend si besoin.
+4. **Accède à l'application**
+   - **Frontend** : http://localhost:3000
+   - **Backend API** : http://localhost:5000
+   - **MongoDB** : port 27017 (pour Compass ou autre outil)
+   - **Ollama** : http://localhost:11434
 
-## Lancer le backend
-Dans le dossier `backend` :
-```bash
-npm run dev
+## Utilisation d'Ollama (modèle LLM local)
+
+- Le backend utilise Ollama pour générer les résumés.
+- Par défaut, le modèle `openchat` est utilisé. Si tu veux un autre modèle (ex : `mistral`, `llama3`), modifie le code backend et télécharge le modèle :
+  ```sh
+  docker exec -it project-apocalypse-ollama-1 ollama pull mistral
+  ```
+- Le premier chargement d'un modèle peut prendre 1 à 2 minutes.
+
+## Variables d'environnement importantes
+
+Dans `docker-compose.yml` (service backend) :
+```yaml
+environment:
+  - MONGO_URI=mongodb://mongo:27017/apocalypse
+  - OLLAMA_API_URL=http://ollama:11434
 ```
 
-## Lancer le frontend
-Dans le dossier `frontend` :
-```bash
-npm run dev
-```
+## Commandes utiles
 
-## Utilisation
-- Accédez à l'application frontend (généralement sur [http://localhost:5173](http://localhost:5173)).
-- Uploadez un PDF : le texte est extrait, envoyé à Ollama (modèle IA local), qui génère un résumé structuré, des points clés et des suggestions d'actions.
-- L'historique des conversations est affiché dans la sidebar à gauche (comme ChatGPT).
-- Toutes les réponses sont enregistrées dans MongoDB (base `apocalypse`, collection `apiresponses`).
+- **Voir les logs en temps réel** :
+  ```sh
+  docker-compose logs -f backend
+  ```
+- **Arrêter tous les services** :
+  ```sh
+  docker-compose down
+  ```
+- **Rebuilder après modification** :
+  ```sh
+  docker-compose up --build
+  ```
 
-## Souveraineté & Sécurité
-- **Aucune donnée ne sort de votre machine** : tout se passe en local (extraction, IA, base de données).
-- Pas de quota, pas de coût à l'usage, pas de dépendance à un cloud externe.
+## Conseils
+- Attends que le modèle Ollama soit bien chargé avant de tester l'upload de PDF.
+- Si tu as une erreur "model not found", télécharge le modèle dans le conteneur Ollama.
+- Si tu as une erreur MongoDB, vérifie que l'URL de connexion utilise bien `mongo` (et pas `localhost`).
 
-## Liens utiles
-- [Ollama – Documentation & modèles](https://ollama.com/library)
-- [MongoDB Community Server](https://www.mongodb.com/try/download/community)
-- [MongoDB Compass](https://www.mongodb.com/try/download/compass)
-- [Node.js](https://nodejs.org/)
-
-## Exemple de prompt pour forcer la réponse en français
-
-```
-Lis le texte ci-dessous et produis une réponse structurée en trois parties distinctes, en français uniquement :
-1. Résumé (3 à 5 phrases)
-2. Points clés (liste à puces)
-3. Suggestions d'action (liste à puces)
-Respecte strictement ce format et n'ajoute rien d'autre.
-Ne mentionne aucune donnée personnelle présente dans le texte, même indirectement.
-
-Texte :
-"""${text}"""
-```
+## Dépannage
+- Si le frontend "charge dans le vide", regarde les logs du backend pour voir s'il y a une erreur.
+- Pour toute question, copie les logs d'erreur ici ou consulte la documentation Docker/Ollama.
 
 ---
 
-**Pour toute question ou contribution, ouvrez une issue ou un pull request !**
+**Projet fullstack PDF summarizer : Node.js/Express, React, MongoDB, Ollama (LLM local)**
