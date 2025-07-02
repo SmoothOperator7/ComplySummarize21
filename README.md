@@ -82,17 +82,12 @@ npm run dev
 ## Exemple de prompt pour forcer la réponse en français
 
 ```
-Voici un texte extrait d'un PDF.
-Si le texte n'est pas en français, traduis-le d'abord en français.
-Fais ensuite un résumé structuré, liste les points clés, et propose des suggestions d'actions.
-Réponds uniquement en français, au format suivant :
-
-Résumé :
-- ...
-Points clés :
-- ...
-Suggestions d'actions :
-- ...
+Lis le texte ci-dessous et produis une réponse structurée en trois parties distinctes, en français uniquement :
+1. Résumé (3 à 5 phrases)
+2. Points clés (liste à puces)
+3. Suggestions d'action (liste à puces)
+Respecte strictement ce format et n'ajoute rien d'autre.
+Ne mentionne aucune donnée personnelle présente dans le texte, même indirectement.
 
 Texte :
 """${text}"""
