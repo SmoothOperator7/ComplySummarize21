@@ -16,6 +16,7 @@ Lis le texte ci-dessous et produis une réponse structurée en trois parties dis
 2. Points clés (liste à puces)
 3. Suggestions d'action (liste à puces)
 Respecte strictement ce format et n'ajoute rien d'autre.
+Ne mentionne aucune donnée personnelle présente dans le texte, même indirectement.
 
 Texte :
 ${text}
