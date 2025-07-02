@@ -5,6 +5,7 @@
 - [MongoDB Community Server](https://www.mongodb.com/try/download/community) (pour la base de données)
 - [MongoDB Compass](https://www.mongodb.com/try/download/compass) (interface graphique pour voir les données)
 - [Ollama](https://ollama.com/) (pour faire tourner le modèle IA en local)
+  - **Important :** Ollama doit être lancé avec la commande `ollama serve` à chaque démarrage de votre machine ou session.
 
 ## Installation
 
@@ -33,13 +34,26 @@
   mongod
   ```
 
-## Lancer Ollama avec le modèle Mistral
-1. Ouvrez un terminal et lancez :
+## Lancer Ollama (modèle IA local)
+1. **Démarrez le serveur Ollama** (à faire à chaque démarrage de votre machine) :
    ```bash
-   ollama run mistral
+   ollama serve
    ```
-   (La première fois, Ollama va télécharger le modèle.)
-2. Laissez ce terminal ouvert pendant toute l'utilisation de l'application.
+   Laissez ce terminal ouvert pendant toute l'utilisation de l'application.
+
+2. **Téléchargez le modèle IA souhaité** (exemples) :
+   - Pour Mistral :
+     ```bash
+     ollama pull mistral
+     ```
+   - Pour OpenChat (type ChatGPT) :
+     ```bash
+     ollama pull openchat
+     ```
+
+3. **Changer de modèle utilisé** :
+   - Dans le fichier `backend/apiollama.js`, modifiez la ligne `model: 'mistral'` par le nom du modèle souhaité (ex : `model: 'openchat'`).
+   - Redémarrez le backend si besoin.
 
 ## Lancer le backend
 Dans le dossier `backend` :

@@ -8,7 +8,7 @@ const axios = require('axios');
 async function summarizeWithOllama(prompt) {
   try {
     const response = await axios.post('http://localhost:11434/api/generate', {
-      model: 'mistral',
+      model: 'openchat',
       prompt: prompt,
       stream: false
     });

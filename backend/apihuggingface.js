@@ -11,41 +11,14 @@ const HF_TOKEN = process.env.HUGGINGFACE_API_KEY;
  */
 async function summarizeWithHuggingFace(text) {
   const prompt = `
-Voici un texte extrait d'un PDF.
+Lis le texte ci-dessous et produis une réponse structurée en trois parties distinctes, en français uniquement :
+1. Résumé (3 à 5 phrases)
+2. Points clés (liste à puces)
+3. Suggestions d'action (liste à puces)
+Respecte strictement ce format et n'ajoute rien d'autre.
 
-Ta tâche :
-1. Génère d'abord un titre court et pertinent pour ce résumé (commence toujours par la ligne : Titre : ...).
-2. Fais-en un résumé structuré, liste les points clés, et propose des suggestions d'actions.
-3. Réponds uniquement en français, même si le texte est dans une autre langue. N'utilise jamais l'anglais.
-4. Respecte OBLIGATOIREMENT le format suivant, sans rien ajouter ni retirer :
-
-Titre : [un titre court]
-Résumé :
-- ...
-Points clés :
-- ...
-Suggestions d'actions :
-- ...
-
-Exemple :
-Texte source :
-TD React
-Juin 2025
-Objectif : Créer une application web pour explorer les Pokémons et gérer des équipes.
-
-Réponse attendue :
-Titre : Application React - Pokémons & Équipes
-Résumé :
-- Ce projet consiste à développer une application React permettant d'explorer les Pokémons et de gérer des équipes.
-Points clés :
-- Utilisation de l'API PokeAPI
-- Gestion des équipes avec JSONPlaceholder
-Suggestions d'actions :
-- Structurer le projet en deux modules
-- Ajouter des fonctionnalités de tri et de pagination
-
-Texte à résumer :
-\"\"\"${text}\"\"\"
+Texte :
+${text}
 `;
 
   try {
