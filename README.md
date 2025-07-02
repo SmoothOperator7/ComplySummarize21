@@ -42,10 +42,6 @@
    Laissez ce terminal ouvert pendant toute l'utilisation de l'application.
 
 2. **Téléchargez le modèle IA souhaité** (exemples) :
-   - Pour Mistral :
-     ```bash
-     ollama pull mistral
-     ```
    - Pour OpenChat (type ChatGPT) :
      ```bash
      ollama pull openchat
