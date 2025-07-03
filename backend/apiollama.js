@@ -10,7 +10,7 @@ const OLLAMA_API_URL = process.env.OLLAMA_API_URL || 'http://ollama:11434';
 async function summarizeWithOllama(prompt) {
   try {
     const response = await axios.post(`${OLLAMA_API_URL}/api/generate`, {
-      model: 'openchat',
+      model: 'mistral',
       prompt: prompt,
       stream: false
     });

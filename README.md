@@ -2,6 +2,7 @@
 
 ## Prérequis
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/) installé (Windows/Mac/Linux)
+- [Ollama](https://ollama.com/download) installé sur ta machine (hors Docker)
 - Accès à un terminal/PowerShell
 
 ## Installation et lancement rapide
@@ -15,30 +16,36 @@
 2. **Vérifie que le fichier `docker-compose.yml` existe à la racine**
    (il est déjà fourni normalement)
 
-3. **Lance tous les services (backend, frontend, MongoDB, Ollama)**
-   ```sh
-   docker-compose up --build
-   ```
-   - La première fois, le téléchargement des images et des modèles peut être long.
-   - Si tu veux arrêter :
+3. **Lance Ollama en natif sur ta machine Windows**
+   - Ouvre un terminal et lance :
      ```sh
-     docker-compose down
+     ollama serve
+     ```
+   - Vérifie que http://localhost:11434 affiche "Ollama is running".
+   - Télécharge le modèle souhaité (exemple avec mistral) :
+     ```sh
+     ollama pull mistral
      ```
 
-4. **Accède à l'application**
+4. **Adapte la configuration du backend**
+   - Le backend doit pointer vers Ollama natif. Dans `docker-compose.yml`, la variable d'environnement doit être :
+     ```yaml
+     environment:
+       - OLLAMA_API_URL=http://host.docker.internal:11434
+     ```
+   - (C'est déjà configuré normalement)
+
+5. **Lance les services Docker (backend, frontend, mongo)**
+   ```sh
+   docker-compose up --build backend frontend mongo
+   ```
+   - *Ne lance pas le service Ollama dans Docker, il n'est plus utilisé.*
+
+6. **Accède à l'application**
    - **Frontend** : http://localhost:3000
    - **Backend API** : http://localhost:5000
    - **MongoDB** : port 27017 (pour Compass ou autre outil)
-   - **Ollama** : http://localhost:11434
-
-## Utilisation d'Ollama (modèle LLM local)
-
-- Le backend utilise Ollama pour générer les résumés.
-- Par défaut, le modèle `openchat` est utilisé. Si tu veux un autre modèle (ex : `mistral`, `llama3`), modifie le code backend et télécharge le modèle :
-  ```sh
-  docker exec -it project-apocalypse-ollama-1 ollama pull mistral
-  ```
-- Le premier chargement d'un modèle peut prendre 1 à 2 minutes.
+   - **Ollama** : http://localhost:11434 (doit afficher "Ollama is running")
 
 ## Variables d'environnement importantes
 
@@ -46,7 +53,7 @@ Dans `docker-compose.yml` (service backend) :
 ```yaml
 environment:
   - MONGO_URI=mongodb://mongo:27017/apocalypse
-  - OLLAMA_API_URL=http://ollama:11434
+  - OLLAMA_API_URL=http://host.docker.internal:11434
 ```
 
 ## Commandes utiles
@@ -66,7 +73,7 @@ environment:
 
 ## Conseils
 - Attends que le modèle Ollama soit bien chargé avant de tester l'upload de PDF.
-- Si tu as une erreur "model not found", télécharge le modèle dans le conteneur Ollama.
+- Si tu as une erreur "model not found", télécharge le modèle dans Ollama natif.
 - Si tu as une erreur MongoDB, vérifie que l'URL de connexion utilise bien `mongo` (et pas `localhost`).
 
 ## Dépannage
@@ -75,4 +82,4 @@ environment:
 
 ---
 
-**Projet fullstack PDF summarizer : Node.js/Express, React, MongoDB, Ollama (LLM local)**
+**Projet fullstack PDF summarizer : Node.js/Express, React, MongoDB, Ollama (LLM local, natif)**
