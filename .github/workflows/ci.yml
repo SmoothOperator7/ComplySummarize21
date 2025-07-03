@@ -49,10 +49,10 @@ jobs:
           npm run build || true
       - name: Docker Compose up (vérifie que les services démarrent)
         run: |
-          docker-compose up -d --build
+          docker compose up -d --build
           sleep 10
-          docker-compose ps
+          docker compose ps
       - name: Docker Compose down
         if: always()
         run: |
-          docker-compose down 
+          docker compose down 
