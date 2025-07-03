@@ -140,7 +140,7 @@ body {
   transition: background 0.2s;
   max-width: 350px;
   margin: auto;
-  margin-top: 18px;
+  margin-top: 1em;
 }
 .upload-btn:hover:not(:disabled) {
   background: #2563eb;
@@ -153,8 +153,8 @@ body {
 .result-card {
   background: #f7f7f8;
   border-radius: 12px;
-  padding: 2.1rem 1.2rem 5rem 1.2rem;
-  margin-bottom: 2.5rem;
+  padding: 2.1rem 1.2rem 1.2rem 1.2rem;
+  margin-bottom: 5.5rem;
   margin-top: 2.9rem;
   box-shadow: 0 2px 8px 0 rgba(0,0,0,0.06);
   max-width: 700px;
@@ -180,13 +180,14 @@ body {
   font-weight: 500;
 }
 
-pre,
+textarea ,pre,
 .ffff {
   background: #fcfcfc;
   border-radius: 5px;
   border: 1px solid #e0e0e0;
   padding: 1em;
   font-size: 1.02rem;
+  width: 650px !important;
   line-height: 1.6;
   margin: 0.5em 0 0.3em 0;
   white-space: pre-wrap !important;

@@ -224,21 +224,36 @@ app.get('/history', async (req, res) => {
 // Route pour renommer une conversation
 app.patch('/history/:id', async (req, res) => {
   try {
-    const { name } = req.body;
-    if (!name || typeof name !== 'string' || !name.trim()) {
-      return res.status(400).json({ success: false, message: 'Nom invalide.' });
+    const update = {};
+    if (typeof req.body.name === 'string' && req.body.name.trim()) {
+      update.name = req.body.name.trim();
+    }
+    if (typeof req.body.response === 'string' && req.body.response.trim()) {
+      try {
+        update.response = encrypt(req.body.response.trim());
+      } catch (e) {
+        return res.status(500).json({ success: false, message: 'Erreur de chiffrement de la synthèse.' });
+      }
+    }
+    if (Object.keys(update).length === 0) {
+      return res.status(400).json({ success: false, message: 'Aucune donnée à mettre à jour.' });
     }
     const updated = await ApiResponse.findByIdAndUpdate(
       req.params.id,
-      { name: name.trim() },
+      update,
       { new: true }
     );
     if (!updated) {
       return res.status(404).json({ success: false, message: 'Conversation non trouvée.' });
     }
-    res.json({ success: true, conversation: updated });
+    // Déchiffrer la réponse avant de renvoyer
+    let decryptedResponse = '[Erreur de déchiffrement]';
+    try {
+      decryptedResponse = decrypt(updated.response);
+    } catch {}
+    res.json({ success: true, conversation: { ...updated.toObject(), response: decryptedResponse } });
   } catch (err) {
-    res.status(500).json({ success: false, message: 'Erreur lors du renommage.' });
+    res.status(500).json({ success: false, message: 'Erreur lors de la mise à jour.' });
   }
 });
 

@@ -16,6 +16,9 @@ function App() {
   const [renameValue, setRenameValue] = useState("");
   const [showCookieBar, setShowCookieBar] = useState(false);
   const [footerModal, setFooterModal] = useState(null);
+  const [isEditingSummary, setIsEditingSummary] = useState(false);
+  const [editedSummary, setEditedSummary] = useState("");
+  const [copySuccess, setCopySuccess] = useState(false);
 
   const handleFileSelect = (event) => {
     const file = event.target.files[0];
@@ -178,6 +181,9 @@ function App() {
     <div className="app-container" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
       <div style={{ flex: 1, display: 'flex', minHeight: 0 }}>
         <div className="sidebar">
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center'   }}>
+            <img src="../img/logo.png" alt="Logo" style={{ height: 60 }} />
+          </div>
           <button
             className="upload-btn"
             style={{ width: '100%', marginBottom: '1em', background: '#4f8cff' ,}}
@@ -335,11 +341,83 @@ function App() {
           )}
           {selectedConversation ? (
             <div className="result-card">
-              <div className="result-header">
-                Conversation du {(() => {
-                  const d = new Date(selectedConversation.createdAt);
-                  return d.toLocaleDateString('fr-FR') + ' à ' + d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
-                })()}
+              <div className="result-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span>
+                  Conversation du {(() => {
+                    const d = new Date(selectedConversation.createdAt);
+                    return d.toLocaleDateString('fr-FR') + ' à ' + d.getHours().toString().padStart(2, '0') + ':' + d.getMinutes().toString().padStart(2, '0');
+                  })()}
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5em' }}>
+                  <button
+                    className="icon-btn"
+                    style={{
+                      background: '#2563eb',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 7,
+                      borderRadius: '50%',
+                      transition: 'background 0.2s',
+                      color: '#fff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      boxShadow: '0 1px 4px rgba(37,99,235,0.08)'
+                    }}
+                    title="Éditer le résumé"
+                    onClick={() => { setIsEditingSummary(true); setEditedSummary(selectedConversation.response); }}
+                  >
+                    {/* Icône crayon blanche */}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M4 20h4.586a1 1 0 0 0 .707-.293l9.414-9.414a2 2 0 0 0 0-2.828l-2.172-2.172a2 2 0 0 0-2.828 0L4.293 14.707A1 1 0 0 0 4 15.414V20z" stroke="#fff" strokeWidth="1.5" fill="none"/><path d="M14.5 7.5l2 2" stroke="#fff" strokeWidth="1.5"/></svg>
+                  </button>
+                  <button
+                    className="icon-btn"
+                    style={{
+                      background: copySuccess ? '#4caf50' : '#2563eb',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 7,
+                      borderRadius: '50%',
+                      transition: 'background 0.2s',
+                      color: '#fff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      boxShadow: '0 1px 4px rgba(37,99,235,0.08)'
+                    }}
+                    title={copySuccess ? 'Copié !' : 'Copier le résumé'}
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(selectedConversation.response);
+                        setCopySuccess(true);
+                        setTimeout(() => setCopySuccess(false), 1200);
+                      } catch {
+                        setCopySuccess(false);
+                      }
+                    }}
+                  >
+                    {/* Icône copy blanche */}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><rect x="9" y="9" width="13" height="13" rx="2" stroke="#fff" strokeWidth="1.5" fill="none"/><rect x="2" y="2" width="13" height="13" rx="2" stroke="#fff" strokeWidth="1.5" fill="none"/></svg>
+                  </button>
+                  <button
+                    className="icon-btn"
+                    style={{
+                      background: '#2563eb',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: 7,
+                      borderRadius: '50%',
+                      transition: 'background 0.2s',
+                      color: '#fff',
+                      display: 'flex',
+                      alignItems: 'center',
+                      boxShadow: '0 1px 4px rgba(37,99,235,0.08)'
+                    }}
+                    title="Télécharger le résumé en PDF"
+                    onClick={() => downloadPdfFromText(selectedConversation.response, `resume-${new Date(selectedConversation.createdAt).toISOString().slice(0,10)}.pdf`)}
+                  >
+                    {/* Icône download blanche */}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none"><path d="M12 4v12m0 0l-5-5m5 5l5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><rect x="3" y="19" width="18" height="2" rx="1" fill="#fff"/></svg>
+                  </button>
+                </span>
               </div>
               {(selectedConversation.filename || selectedConversation.pages) && (
                 <div className="result-info">
@@ -353,18 +431,60 @@ function App() {
                   )}
                 </div>
               )}
-              <pre>{selectedConversation.response}</pre>
-              <button
-                className="pdf-download-btn"
-                onClick={() => downloadPdfFromText(selectedConversation.response, `resume-${new Date(selectedConversation.createdAt).toISOString().slice(0,10)}.pdf`)}
-                style={{marginTop: '1em'}}
-              >
-                <span className="pdf-download-icon" aria-hidden="true" style={{marginRight: '0.5em', verticalAlign: 'middle'}}>
-                  {/* Icône download */}
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 4v12m0 0l-5-5m5 5l5-5" stroke="#fff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><rect x="3" y="19" width="18" height="2" rx="1" fill="#fff"/></svg>
-                </span>
-                Télécharger le résumé en PDF
-              </button>
+              {isEditingSummary ? (
+                <>
+                  <textarea
+                    value={editedSummary}
+                    onChange={e => setEditedSummary(e.target.value)}
+                    rows={10}
+                    style={{
+                      width: '100%',
+                      fontSize: '1em',
+                      marginTop: '1em',
+                      borderRadius: 8,
+                      border: '1px solid #bbb',
+                      padding: '0.7em',
+                      resize: 'vertical',
+                      minHeight: 120,
+                      boxSizing: 'border-box',
+                      background: '#f8f8fa',
+                    }}
+                  />
+                  <div style={{ marginTop: '0.7em', display: 'flex', gap: '1em' }}>
+                    <button
+                      className="upload-btn"
+                      onClick={async () => {
+                        if (!editedSummary.trim()) return;
+                        try {
+                          const res = await fetch(`${API_BASE_URL}/history/${selectedConversation._id}`, {
+                            method: 'PATCH',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ response: editedSummary })
+                          });
+                          const data = await res.json();
+                          if (data.success) {
+                            setSelectedConversation({ ...selectedConversation, response: editedSummary });
+                            setIsEditingSummary(false);
+                            fetchHistory();
+                          } else {
+                            alert(data.message || 'Erreur lors de la mise à jour.');
+                          }
+                        } catch (err) {
+                          alert('Erreur lors de la mise à jour.');
+                        }
+                      }}
+                      style={{ minWidth: 110 }}
+                    >Enregistrer</button>
+                    <button
+                      className="upload-btn"
+                      style={{ background: '#bbb', minWidth: 110 }}
+                      onClick={() => { setIsEditingSummary(false); setEditedSummary(""); }}
+                    >Annuler</button>
+                  </div>
+                </>
+              ) : (
+                <pre>{selectedConversation.response}</pre>
+              )}
             </div>
           ) : (
             extractedData && (
